@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="mopec">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Mopec Maestro Configurator | Better By Design</title>
+  <meta name="description"
+    content="Configure your Mopec Maestro Grossing Station with our interactive 3D configurator. Customize features, accessories, and get instant pricing.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <!-- DaisyUI 5 + Tailwind CSS 4 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- jsPDF for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Three.js ES Modules -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <!-- Google Fonts (Brand Guidelines: Open Sans + Merriweather) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+    rel="stylesheet">
+
+  <!-- Custom Mopec Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Open Sans', sans-serif;
+      --font-serif: 'Merriweather', serif;
+      --color-mopec-blue: #407EC9;
+      --color-mopec-orange: #FC4C02;
+      --color-mopec-gray: #4B4F54;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-base-200">
+
+  <!-- Mobile Drawer Layout -->
+  <div class="drawer lg:drawer-open">
+    <input id="config-drawer" type="checkbox" class="drawer-toggle" />
+
+    <!-- Main Content -->
+    <div class="drawer-content flex flex-col">
+
+      <!-- Navbar -->
+      <header class="navbar bg-base-100 shadow-sm sticky top-0 z-40 px-4 lg:px-6 border-b border-base-200">
+        <div class="navbar-start">
+          <!-- Mobile menu button -->
+          <label for="config-drawer" class="btn btn-ghost btn-square lg:hidden" aria-label="Open configuration panel">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </label>
+
+          <!-- Logo -->
+          <a href="https://www.mopec.com" target="_blank" rel="noopener" class="flex items-center gap-3 group">
+            <img src="mopec-logo-400x128.webp" alt="Mopec - Better By Design" class="h-9 sm:h-11 w-auto" />
+          </a>
+        </div>
+
+	        <div class="navbar-center hidden md:flex flex-col items-center">
+	          <span class="text-sm font-semibold text-primary">Maestro Configurator</span>
+	          <span class="text-[10px] tracking-[0.2em] uppercase text-neutral">Grossing Station</span>
+	        </div>
+
+        <div class="navbar-end gap-2">
+          <button class="btn btn-ghost btn-sm gap-2 text-base-content/70 hover:text-base-content"
+            onclick="resetConfiguration()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span class="hidden sm:inline">Reset</span>
+          </button>
+	          <button class="btn btn-sm btn-success gap-2 lg:hidden"
+	            onclick="downloadPDF()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span class="hidden sm:inline">PDF</span>
+          </button>
+	          <button class="btn btn-sm btn-primary gap-2 lg:hidden"
+	            onclick="requestQuote()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span class="hidden sm:inline">Quote</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Area -->
+      <main class="flex-1 p-4 lg:p-6">
+        <div class="max-w-6xl mx-auto space-y-4 lg:space-y-6">
+
+
+
+          <!-- 3D Viewer Card -->
+          <div class="card bg-base-100 shadow-xl overflow-hidden">
+            <div id="canvas-container"
+              class="h-[50vh] sm:h-[55vh] lg:h-[65vh] min-h-[300px] max-h-[600px] rounded-t-box">
+              <canvas id="three-canvas"></canvas>
+
+              <!-- Loading Indicator -->
+              <div id="loading-indicator"
+                class="absolute inset-0 flex items-center justify-center loading-overlay z-10">
+                <div class="text-center">
+                  <span class="loading loading-spinner loading-lg text-primary"></span>
+                  <p class="text-white text-sm mt-3">Loading 3D Model...</p>
+                  <p id="loading-progress" class="text-white/60 text-xs mt-1"></p>
+                </div>
+              </div>
+
+              <!-- Model Info Badge -->
+              <div class="absolute top-3 left-3 z-20">
+                <div class="badge bg-transparent glass glass-strong text-white gap-2 py-3 px-3 border border-white/10">
+                  <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                  <span id="model-name" class="text-xs font-medium">Mopec Maestro 72"</span>
+                </div>
+              </div>
+
+              <!-- View Mode Toggle -->
+              <div class="absolute top-3 left-1/2 -translate-x-1/2 z-20">
+                <div class="join glass glass-strong rounded-xl border border-white/10 shadow-lg">
+                  <button class="btn btn-sm join-item view-control active" id="view-render"
+                    onclick="setViewMode('render', this)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span class="hidden sm:inline ml-1">Render</span>
+                  </button>
+                  <button class="btn btn-sm join-item view-control" id="view-blueprint"
+                    onclick="setViewMode('blueprint', this)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                    </svg>
+                    <span class="hidden sm:inline ml-1">Blueprint</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Zoom Controls -->
+              <div
+                class="absolute top-3 right-3 z-20 flex flex-col gap-1 glass glass-strong rounded-xl border border-white/10 shadow-lg p-1">
+                <button class="btn btn-sm btn-square view-control" onclick="zoomIn()" aria-label="Zoom in">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
+                  </svg>
+                </button>
+                <button class="btn btn-sm btn-square view-control" onclick="zoomOut()" aria-label="Zoom out">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                  </svg>
+                </button>
+                <button class="btn btn-sm btn-square view-control" onclick="toggleAutoRotate()"
+                  aria-label="Toggle rotation" id="rotate-btn">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- View Preset Controls -->
+              <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20">
+                <div class="join glass glass-strong rounded-xl border border-white/10 shadow-lg">
+                  <button class="btn btn-sm join-item view-control" data-view="iso"
+                    onclick="setView('iso', this)">ISO</button>
+                  <button class="btn btn-sm join-item view-control active" data-view="front"
+                    onclick="setView('front', this)">Front</button>
+                  <button class="btn btn-sm join-item view-control" data-view="side"
+                    onclick="setView('side', this)">Side</button>
+                  <button class="btn btn-sm join-item view-control" data-view="top"
+                    onclick="setView('top', this)">Top</button>
+                </div>
+              </div>
+
+              <!-- Dimension Annotations (Blueprint Mode) -->
+              <div id="dimension-annotations" class="absolute inset-0 pointer-events-none z-15 hidden">
+                <div
+                  class="absolute bottom-16 left-1/2 -translate-x-1/2 text-primary text-xs font-mono bg-white/90 px-2 py-1 rounded">
+                  <span id="dim-length">72"</span> L
+                </div>
+                <div
+                  class="absolute top-1/2 right-8 -translate-y-1/2 text-primary text-xs font-mono bg-white/90 px-2 py-1 rounded">
+                  <span id="dim-height">34.5"-46.5"</span> H
+                </div>
+                <div
+                  class="absolute top-1/2 left-8 -translate-y-1/2 text-primary text-xs font-mono bg-white/90 px-2 py-1 rounded">
+                  <span id="dim-width">32"</span> W
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Stats Bar -->
+            <div class="card-body py-4 px-4 sm:px-6 border-t border-base-200">
+              <div class="flex flex-wrap gap-4 sm:gap-6 justify-between items-center">
+                <div class="flex flex-wrap gap-4 sm:gap-8">
+                  <div>
+                    <p class="text-xs text-base-content/60 uppercase tracking-wide font-medium">Dimensions</p>
+                    <p class="font-semibold text-sm text-neutral" id="dimensions">72" x 32"</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-base-content/60 uppercase tracking-wide font-medium">Capacity</p>
+                    <p class="font-semibold text-sm text-neutral" id="capacity">750 lbs</p>
+                  </div>
+                  <div class="hidden sm:block">
+                    <p class="text-xs text-base-content/60 uppercase tracking-wide font-medium">Sink Position</p>
+                    <p class="font-semibold text-sm text-neutral" id="sink-position-display">Left</p>
+                  </div>
+                  <div class="hidden md:block">
+                    <p class="text-xs text-base-content/60 uppercase tracking-wide font-medium">Material</p>
+                    <p class="font-semibold text-sm text-neutral" id="material">304 Stainless Steel</p>
+                  </div>
+                </div>
+                <div class="badge badge-lg badge-success border-none gap-1 py-3 px-4">
+                  <span class="text-xs opacity-80">From</span>
+                  <span class="font-bold" id="base-price">$17,500</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Specs Section (Desktop) -->
+          <div class="card bg-base-100 shadow-lg hidden lg:block">
+            <div class="card-body">
+              <div class="flex items-center mb-4">
+                <h2 class="card-title text-base gap-2 text-primary">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Technical Specifications
+                </h2>
+              </div>
+
+              <div class="grid grid-cols-3 gap-6">
+                <div class="spec-card construction">
+                  <h3 class="font-semibold text-sm mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span>
+                    Construction
+                  </h3>
+                  <div class="space-y-1 text-sm">
+                    <div class="flex justify-between"><span class="text-base-content/60">Material</span><span
+                        class="font-medium">304 SS</span></div>
+                    <div class="flex justify-between"><span class="text-base-content/60">Finish</span><span
+                        class="font-medium">No. 4 Satin</span></div>
+                    <div class="flex justify-between"><span class="text-base-content/60">Welds</span><span
+                        class="font-medium">Heliarc (TIG)</span></div>
+                  </div>
+                </div>
+                <div class="spec-card dimensions">
+                  <h3 class="font-semibold text-sm mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-success"></span>
+                    Dimensions
+                  </h3>
+                  <div class="space-y-1 text-sm" id="spec-dimensions">
+                    <div class="flex justify-between"><span class="text-base-content/60">Length</span><span
+                        class="font-medium">72"</span></div>
+                    <div class="flex justify-between"><span class="text-base-content/60">Width</span><span
+                        class="font-medium">32"</span></div>
+                    <div class="flex justify-between"><span class="text-base-content/60">Height</span><span
+                        class="font-medium">34.5" - 46.5"</span></div>
+                  </div>
+                </div>
+                <div class="spec-card utilities">
+                  <h3 class="font-semibold text-sm mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-secondary"></span>
+                    Utilities
+                  </h3>
+                  <div class="space-y-1 text-sm">
+                    <div class="flex justify-between"><span class="text-base-content/60">Power</span><span
+                        class="font-medium">115V/60Hz</span></div>
+                    <div class="flex justify-between"><span class="text-base-content/60">Circuits</span><span
+                        class="font-medium">2 x 20A</span></div>
+                    <div class="flex justify-between"><span class="text-base-content/60">Exhaust</span><span
+                        class="font-medium">275-400 CFM</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Summary Card -->
+          <div class="card bg-neutral text-neutral-content shadow-xl lg:hidden">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs opacity-70">Estimated Total</p>
+                  <p class="text-2xl font-bold" id="mobile-total">$23,100</p>
+                </div>
+                <label for="config-drawer" class="btn btn-primary gap-2">
+                  Configure
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer footer-center p-4 bg-base-100 text-base-content/60 text-xs border-t border-base-200">
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <p>&copy; 2025 Mopec. All rights reserved.</p>
+          <span class="hidden sm:inline">&bull;</span>
+          <p class="tagline text-[10px]">Better By Design&trade;</p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Configuration Sidebar -->
+    <div class="drawer-side z-50">
+      <label for="config-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+
+      <div class="bg-base-100 min-h-full w-80 sm:w-96 flex flex-col config-sidebar">
+
+        <!-- Sidebar Header -->
+        <div class="sticky top-0 bg-base-100/80 backdrop-blur-md z-10 p-4 border-b border-base-200">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold flex items-center gap-2 text-primary">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              Configure Your Maestro
+            </h2>
+            <label for="config-drawer" class="btn btn-ghost btn-sm btn-square lg:hidden">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </label>
+          </div>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto custom-scroll p-4 space-y-4">
+
+          <!-- Product Selection -->
+          <div class="collapse collapse-arrow bg-base-200 rounded-box">
+            <input type="radio" name="config-accordion" checked="checked" />
+            <div class="collapse-title font-medium flex items-center gap-2">
+              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+              Station Size
+              <span class="badge badge-sm badge-primary border-none ml-auto">Step 1</span>
+            </div>
+            <div class="collapse-content space-y-2">
+              <label
+                class="option-card cursor-pointer block rounded-lg p-3 bg-base-100 border border-base-300 touch-target relative"
+                data-product="maestro48">
+                <input type="radio" name="product" value="maestro48" class="sr-only">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-semibold text-sm">Maestro 48"</p>
+                    <p class="text-xs text-base-content/60">Compact Grossing Station</p>
+                  </div>
+                  <span class="text-sm font-semibold text-success">$12,500</span>
+                </div>
+              </label>
+
+              <label
+                class="option-card cursor-pointer block rounded-lg p-3 bg-base-100 border border-base-300 touch-target relative"
+                data-product="maestro60">
+                <input type="radio" name="product" value="maestro60" class="sr-only">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-semibold text-sm">Maestro 60"</p>
+                    <p class="text-xs text-base-content/60">Standard Grossing Station</p>
+                  </div>
+                  <span class="text-sm font-semibold text-success">$14,500</span>
+                </div>
+              </label>
+
+              <label
+                class="option-card selected cursor-pointer block rounded-lg p-3 bg-base-100 border border-base-300 touch-target relative"
+                data-product="maestro72">
+                <input type="radio" name="product" value="maestro72" class="sr-only" checked>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-semibold text-sm">Maestro 72"</p>
+                    <p class="text-xs text-base-content/60">Enhanced Grossing Station</p>
+                  </div>
+                  <div class="text-right">
+                    <span class="badge badge-sm badge-primary border-none mb-1">Popular</span>
+                    <p class="text-sm font-semibold text-success">$17,500</p>
+                  </div>
+                </div>
+              </label>
+
+              <label
+                class="option-card cursor-pointer block rounded-lg p-3 bg-base-100 border border-base-300 touch-target relative"
+                data-product="maestro96">
+                <input type="radio" name="product" value="maestro96" class="sr-only">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-semibold text-sm">Maestro 96"</p>
+                    <p class="text-xs text-base-content/60">Dual-User Grossing Station</p>
+                  </div>
+                  <div class="text-right">
+                    <span class="badge badge-sm badge-secondary border-none mb-1">New</span>
+                    <p class="text-sm font-semibold text-success">$24,500</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Core Features -->
+          <div class="collapse collapse-arrow bg-base-200 rounded-box">
+            <input type="radio" name="config-accordion" />
+            <div class="collapse-title font-medium flex items-center gap-2">
+              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              Features
+              <span class="badge badge-sm bg-base-300 text-base-content ml-auto" id="features-count">3</span>
+            </div>
+            <div class="collapse-content space-y-2">
+              <div class="p-3 bg-base-100 rounded-lg border border-base-300">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="font-medium text-sm">Base Style <span
+                        class="text-xs text-base-content/50">(Preview)</span></p>
+                    <p class="text-xs text-base-content/60 mt-0.5">Toggle between center pedestal and 4-leg frame.</p>
+                  </div>
+                </div>
+                <div class="join w-full mt-2">
+                  <input class="join-item btn btn-sm btn-outline w-1/2" type="radio" name="baseStyle" value="pedestal"
+                    aria-label="Center pedestal" checked>
+                  <input class="join-item btn btn-sm btn-outline w-1/2" type="radio" name="baseStyle" value="legs"
+                    aria-label="4-leg frame">
+                </div>
+              </div>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-feature="touchscreen">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" checked
+                    disabled>
+                  <div>
+                    <span class="font-medium text-sm">Touchscreen Control</span>
+                    <p class="text-xs text-base-content/60">Integrated with user profiles</p>
+                  </div>
+                </div>
+                <span class="text-sm font-medium text-base-content/50">Included</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-feature="heightAdjust">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" checked>
+                  <div>
+                    <span class="font-medium text-sm">Hydraulic Elevation</span>
+                    <p class="text-xs text-base-content/60">ADA compliant, 34.5" - 46.5"</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$2,400</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-feature="frontAirSystem">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary" checked>
+                  <div>
+                    <span class="font-medium text-sm">Front Air System (FAS)</span>
+                    <p class="text-xs text-base-content/60">Patent pending laminar flow</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$3,200</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-feature="formalinDetection">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Formalin Fume Detection</span>
+                    <p class="text-xs text-base-content/60">Real-time monitoring system</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$1,800</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-feature="downdraftVent">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Downdraft Ventilation</span>
+                    <p class="text-xs text-base-content/60">275-400 CFM exhaust</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$2,800</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Sink & Layout -->
+          <div class="collapse collapse-arrow bg-base-200 rounded-box">
+            <input type="radio" name="config-accordion" />
+            <div class="collapse-title font-medium flex items-center gap-2">
+              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Sink & Layout
+              <span class="badge badge-sm badge-primary border-none ml-auto">Step 3</span>
+            </div>
+            <div class="collapse-content space-y-3">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-medium text-sm">Sink Position</span>
+                </label>
+                <div class="grid grid-cols-4 gap-2">
+                  <label class="cursor-pointer">
+                    <input type="radio" name="sinkPosition" value="left" class="sr-only peer" checked>
+                    <div
+                      class="p-2 text-center border-2 border-base-300 rounded-lg peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                      <svg class="w-6 h-6 mx-auto mb-1 text-base-content/70" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <rect x="3" y="8" width="6" height="8" rx="1" stroke-width="2" />
+                        <rect x="11" y="8" width="10" height="8" rx="1" stroke-width="2" stroke-dasharray="2 2" />
+                      </svg>
+                      <span class="text-xs">Left</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="sinkPosition" value="center" class="sr-only peer">
+                    <div
+                      class="p-2 text-center border-2 border-base-300 rounded-lg peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                      <svg class="w-6 h-6 mx-auto mb-1 text-base-content/70" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <rect x="3" y="8" width="6" height="8" rx="1" stroke-width="2" stroke-dasharray="2 2" />
+                        <rect x="9" y="8" width="6" height="8" rx="1" stroke-width="2" />
+                        <rect x="15" y="8" width="6" height="8" rx="1" stroke-width="2" stroke-dasharray="2 2" />
+                      </svg>
+                      <span class="text-xs">Center</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="sinkPosition" value="right" class="sr-only peer">
+                    <div
+                      class="p-2 text-center border-2 border-base-300 rounded-lg peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                      <svg class="w-6 h-6 mx-auto mb-1 text-base-content/70" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <rect x="3" y="8" width="10" height="8" rx="1" stroke-width="2" stroke-dasharray="2 2" />
+                        <rect x="15" y="8" width="6" height="8" rx="1" stroke-width="2" />
+                      </svg>
+                      <span class="text-xs">Right</span>
+                    </div>
+                  </label>
+                  <label class="cursor-pointer">
+                    <input type="radio" name="sinkPosition" value="none" class="sr-only peer">
+                    <div
+                      class="p-2 text-center border-2 border-base-300 rounded-lg peer-checked:border-primary peer-checked:bg-primary/10 transition-all">
+                      <svg class="w-6 h-6 mx-auto mb-1 text-base-content/70" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <rect x="3" y="8" width="18" height="8" rx="1" stroke-width="2" stroke-dasharray="2 2" />
+                        <path stroke-linecap="round" stroke-width="2" d="M6 12h12" />
+                      </svg>
+                      <span class="text-xs">None</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-feature="disposal">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Waste Disposal Unit</span>
+                    <p class="text-xs text-base-content/60">Heavy duty 1/2 HP disposal</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$950</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-feature="secondSink">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Second Sink</span>
+                    <p class="text-xs text-base-content/60">Additional sink (96" models)</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$1,200</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Accessories -->
+          <div class="collapse collapse-arrow bg-base-200 rounded-box">
+            <input type="radio" name="config-accordion" />
+            <div class="collapse-title font-medium flex items-center gap-2">
+              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+              </svg>
+              Accessories
+              <span class="badge badge-sm bg-base-300 text-base-content ml-auto" id="accessories-count">0</span>
+            </div>
+            <div class="collapse-content space-y-2">
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-accessory="pathCam">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">PathCam Imaging System</span>
+                    <p class="text-xs text-base-content/60">HD specimen documentation</p>
+                    <span class="badge badge-xs badge-secondary border-none mt-1">Premium</span>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$8,500</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-accessory="monitorArm">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Monitor Arm</span>
+                    <p class="text-xs text-base-content/60">Adjustable center mount</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$340</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-accessory="magnetBar">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Magnetic Instrument Bar</span>
+                    <p class="text-xs text-base-content/60">Tool organization strip</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$185</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-accessory="drawerSystem">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Under-Counter Drawers</span>
+                    <p class="text-xs text-base-content/60">Stainless steel storage</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$550</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-accessory="ledLightStrip">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">LED Light Strip</span>
+                    <p class="text-xs text-base-content/60">5000K bright illumination</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$425</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-accessory="pegboardWing">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Pegboard Wing Extension</span>
+                    <p class="text-xs text-base-content/60">Expanded tool mounting</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$485</span>
+              </label>
+
+              <label
+                class="flex items-center justify-between p-3 bg-base-100 rounded-lg cursor-pointer hover:bg-base-200 transition-colors touch-target"
+                data-accessory="formalinDispenser">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" class="checkbox checkbox-sm checkbox-primary">
+                  <div>
+                    <span class="font-medium text-sm">Formalin Dispenser</span>
+                    <p class="text-xs text-base-content/60">Spatter-free system</p>
+                  </div>
+                </div>
+                <span class="text-sm font-semibold text-success">+$620</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Mobile Specs -->
+          <div class="collapse collapse-arrow bg-base-200 rounded-box lg:hidden">
+            <input type="radio" name="config-accordion" />
+            <div class="collapse-title font-medium flex items-center gap-2">
+              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Specifications
+            </div>
+            <div class="collapse-content">
+              <div class="space-y-3 text-sm">
+                <div>
+                  <h4 class="font-medium text-xs text-base-content/60 uppercase mb-1">Construction</h4>
+                  <p>304 Stainless Steel, No. 4 Satin Finish, Heliarc-welded</p>
+                </div>
+                <div>
+                  <h4 class="font-medium text-xs text-base-content/60 uppercase mb-1">Dimensions</h4>
+                  <p>72"L x 32"W x 34.5-46.5"H, Sink: 20" x 12" x 8"</p>
+                </div>
+                <div>
+                  <h4 class="font-medium text-xs text-base-content/60 uppercase mb-1">Utilities</h4>
+                  <p>115V/60Hz/1Ph, 2 x 20A circuits, 275-400 CFM exhaust</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Footer (Sticky) -->
+        <div class="sticky bottom-0 summary-panel text-white p-4 border-t border-white/10">
+          <div class="space-y-3">
+            <div class="space-y-1 text-sm max-h-32 overflow-y-auto custom-scroll" id="summary-list">
+              <div class="flex justify-between opacity-80">
+                <span>Base Unit</span>
+                <span>$17,500</span>
+              </div>
+              <div class="flex justify-between opacity-80">
+                <span>Hydraulic Elevation</span>
+                <span>$2,400</span>
+              </div>
+              <div class="flex justify-between opacity-80">
+                <span>Front Air System (FAS)</span>
+                <span>$3,200</span>
+              </div>
+            </div>
+
+            <div class="divider my-1 summary-divider h-px"></div>
+
+            <div class="flex justify-between items-center">
+              <span class="opacity-70 text-sm">Estimated Total</span>
+              <span class="text-2xl font-bold" id="total-price">$23,100</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 hidden lg:grid">
+              <button class="btn btn-success gap-2" onclick="downloadPDF()">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                PDF
+              </button>
+              <button class="btn btn-primary gap-2" onclick="requestQuote()">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Quote
+              </button>
+            </div>
+
+            <p class="text-xs opacity-50 text-center">
+              Pricing subject to quote approval
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quote Modal -->
+  <dialog id="quote-modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">x</button>
+      </form>
+
+      <h3 class="font-bold text-lg flex items-center gap-2 mb-4 text-primary">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        Request a Quote
+      </h3>
+
+      <form class="space-y-4" onsubmit="submitQuote(event)">
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend text-primary">Contact Information</legend>
+
+          <label class="floating-label">
+            <input type="text" placeholder="Full Name" class="input input-bordered w-full focus:border-primary"
+              required />
+            <span>Full Name *</span>
+          </label>
+
+          <label class="floating-label mt-3">
+            <input type="email" placeholder="Email" class="input input-bordered w-full focus:border-primary"
+              required />
+            <span>Email *</span>
+          </label>
+
+          <label class="floating-label mt-3">
+            <input type="text" placeholder="Organization" class="input input-bordered w-full focus:border-primary" />
+            <span>Organization</span>
+          </label>
+
+          <label class="floating-label mt-3">
+            <input type="tel" placeholder="Phone" class="input input-bordered w-full focus:border-primary" />
+            <span>Phone</span>
+          </label>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend text-primary">Additional Notes</legend>
+          <textarea class="textarea textarea-bordered w-full focus:border-primary" rows="3"
+            placeholder="Any specific requirements or questions..."></textarea>
+        </fieldset>
+
+        <div class="bg-base-200 rounded-lg p-3 text-sm">
+          <p class="font-medium text-primary">Configuration Summary:</p>
+          <p class="text-base-content/70 mt-1" id="modal-config-summary">Mopec Maestro 72" with Hydraulic Elevation,
+            Front Air System (FAS)</p>
+          <p class="font-bold mt-1 text-success">Est. Total: <span id="modal-total">$23,100</span></p>
+        </div>
+
+        <div class="modal-action">
+          <button type="submit" class="btn btn-primary btn-block">Submit Quote Request</button>
+        </div>
+      </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Toast Container -->
+  <div class="toast toast-end toast-bottom z-[100]" id="toast-container"></div>
+
+  <!-- Configuration Data -->
+  <script src="js/config.js"></script>
+
+  <!-- Three.js Viewer Module (moved to js/viewer-runtime.js) -->
+  <script type="module" src="js/viewer-runtime.js">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    let scene, camera, renderer, controls, model;
+    let autoRotate = false;
+    let viewMode = 'render'; // 'render' or 'blueprint'
+    let wireframeMaterials = {};
+    let originalMaterials = {};
+
+    const container = document.getElementById('canvas-container');
+    const canvas = document.getElementById('three-canvas');
+    const loadingIndicator = document.getElementById('loading-indicator');
+
+    // Model component groups for dynamic updates
+    let modelComponents = {
+      tableTop: null,
+      sink: null,
+      secondSink: null,
+      disposal: null,
+      pegboard: null,
+      pegboardWing: null,
+      hood: null,
+      pathCam: null,
+      monitorArm: null,
+      magnetBar: null,
+      drawers: null,
+      ledStrip: null,
+      formalinDispenser: null,
+      base: null
+    };
+
+    // Current configuration state for 3D model
+    let modelConfig = {
+      width: 72,
+      baseStyle: 'pedestal', // 'pedestal' | 'legs'
+      sinkPosition: 'left',
+      hasDisposal: false,
+      hasSecondSink: false,
+      hasPathCam: false,
+      hasMonitorArm: false,
+      hasMagnetBar: false,
+      hasDrawers: false,
+      hasLedStrip: false,
+      hasPegboardWing: false,
+      hasFormalinDispenser: false
+    };
+
+    // ============================================
+    // Material Definitions (Mopec Branding)
+    // ============================================
+    const MATERIALS = {
+      stainlessSteel: new THREE.MeshPhysicalMaterial({
+        color: 0xd8d8d8,
+        metalness: 0.95,
+        roughness: 0.15,
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.1,
+        envMapIntensity: 1.5
+      }),
+      brushedSteel: new THREE.MeshPhysicalMaterial({
+        color: 0xc0c0c0,
+        metalness: 0.9,
+        roughness: 0.3,
+        envMapIntensity: 1.2
+      }),
+      darkSteel: new THREE.MeshPhysicalMaterial({
+        color: 0x606060,
+        metalness: 0.85,
+        roughness: 0.4,
+        envMapIntensity: 1.0
+      }),
+      plastic: new THREE.MeshStandardMaterial({
+        color: 0x2a2a2a,
+        metalness: 0.0,
+        roughness: 0.6
+      }),
+      mopecBlue: new THREE.MeshStandardMaterial({
+        color: 0x407EC9,
+        metalness: 0.1,
+        roughness: 0.5
+      }),
+      mopecOrange: new THREE.MeshStandardMaterial({
+        color: 0xFC4C02,
+        metalness: 0.1,
+        roughness: 0.5
+      }),
+      glass: new THREE.MeshPhysicalMaterial({
+        color: 0x88ccff,
+        metalness: 0,
+        roughness: 0,
+        transmission: 0.9,
+        transparent: true,
+        opacity: 0.3
+      }),
+      rubber: new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        metalness: 0,
+        roughness: 0.9
+      }),
+      emissiveWhite: new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.8,
+        metalness: 0,
+        roughness: 0.3
+      })
+    };
+
+    // Blueprint wireframe material
+    const blueprintMaterial = new THREE.MeshBasicMaterial({
+      color: 0x407EC9,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.8
+    });
+
+    const NON_DISPOSABLE_MATERIALS = new Set([...Object.values(MATERIALS), blueprintMaterial]);
+
+    function disposeObject3D(root) {
+      if (!root) return;
+      const disposedGeometries = new Set();
+      const disposedMaterials = new Set();
+      root.traverse((obj) => {
+        if (obj.geometry) {
+          if (!disposedGeometries.has(obj.geometry)) {
+            obj.geometry.dispose();
+            disposedGeometries.add(obj.geometry);
+          }
+        }
+
+        const material = obj.material;
+        if (!material) return;
+
+        if (Array.isArray(material)) {
+          material.forEach((m) => {
+            if (!m || NON_DISPOSABLE_MATERIALS.has(m) || disposedMaterials.has(m)) return;
+            m.dispose();
+            disposedMaterials.add(m);
+          });
+          return;
+        }
+
+        if (NON_DISPOSABLE_MATERIALS.has(material) || disposedMaterials.has(material)) return;
+        material.dispose();
+        disposedMaterials.add(material);
+      });
+    }
+
+    function init() {
+      scene = new THREE.Scene();
+
+      // Camera
+      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(5, 3, 5);
+
+      // Renderer
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: true
+      });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      // Controls
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 2;
+      controls.maxDistance = 15;
+      controls.maxPolarAngle = Math.PI / 2;
+      controls.target.set(0, 0.9, 0);
+      controls.update();
+
+      // Setup environment
+      setupLighting();
+      setupEnvironment();
+
+      // Create model
+      createMaestroModel();
+
+      // Event listeners
+      window.addEventListener('resize', onWindowResize);
+
+      // Start animation
+      animate();
+    }
+
+    function setupLighting() {
+      // Ambient
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      // Main light
+      const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      mainLight.position.set(5, 10, 7);
+      mainLight.castShadow = true;
+      mainLight.shadow.mapSize.width = 2048;
+      mainLight.shadow.mapSize.height = 2048;
+      mainLight.shadow.camera.near = 0.5;
+      mainLight.shadow.camera.far = 50;
+      mainLight.shadow.bias = -0.0001;
+      scene.add(mainLight);
+
+      // Fill light
+      const fillLight = new THREE.DirectionalLight(0x88ccff, 0.5);
+      fillLight.position.set(-5, 5, -5);
+      scene.add(fillLight);
+
+      // Rim light
+      const rimLight = new THREE.DirectionalLight(0xffffff, 0.3);
+      rimLight.position.set(0, 3, -8);
+      scene.add(rimLight);
+
+      // Hemisphere
+      const hemiLight = new THREE.HemisphereLight(0x4488bb, 0x002244, 0.3);
+      scene.add(hemiLight);
+    }
+
+    function setupEnvironment() {
+      // Create procedural environment
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      pmremGenerator.compileEquirectangularShader();
+
+      const envScene = new THREE.Scene();
+      const envGeo = new THREE.SphereGeometry(100, 32, 32);
+      const envMat = new THREE.ShaderMaterial({
+        uniforms: {
+          topColor: { value: new THREE.Color(0x0077ff) },
+          bottomColor: { value: new THREE.Color(0xffffff) }
+        },
+        vertexShader: `
+          varying vec3 vWorldPosition;
+          void main() {
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPosition = worldPosition.xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 topColor;
+          uniform vec3 bottomColor;
+          varying vec3 vWorldPosition;
+          void main() {
+            float h = normalize(vWorldPosition).y;
+            gl_FragColor = vec4(mix(bottomColor, topColor, max(h, 0.0)), 1.0);
+          }
+        `,
+        side: THREE.BackSide
+      });
+      envScene.add(new THREE.Mesh(envGeo, envMat));
+      const envRT = pmremGenerator.fromScene(envScene);
+      scene.environment = envRT.texture;
+
+      // Ground
+      const groundGeometry = new THREE.PlaneGeometry(50, 50);
+      const groundMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a2e,
+        roughness: 0.9,
+        metalness: 0.1
+      });
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.01;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Grid (Mopec blue)
+      const gridHelper = new THREE.GridHelper(20, 40, 0x407EC9, 0x1e3a5f);
+      gridHelper.position.y = 0;
+      gridHelper.material.opacity = 0.3;
+      gridHelper.material.transparent = true;
+      scene.add(gridHelper);
+    }
+
+    function createMaestroModel() {
+      model = new THREE.Group();
+      originalMaterials = {};
+
+      // Get scale factor based on width
+      const widthScale = modelConfig.width / 72;
+      const tableWidth = 3.0 * widthScale;
+
+      // ---- TABLE TOP ----
+      const tableTopGroup = new THREE.Group();
+      const tableTopGeometry = new THREE.BoxGeometry(tableWidth, 0.08, 0.9);
+      const tableTop = new THREE.Mesh(tableTopGeometry, MATERIALS.stainlessSteel);
+      tableTop.position.y = 0.95;
+      tableTop.castShadow = true;
+      tableTop.receiveShadow = true;
+      tableTopGroup.add(tableTop);
+      createRim(tableTopGroup, tableWidth + 0.05, 0.9, 0.04, 0.99);
+      modelComponents.tableTop = tableTopGroup;
+      model.add(tableTopGroup);
+
+      // ---- WORK SURFACE ----
+      const drainAreaGeometry = new THREE.BoxGeometry(tableWidth * 0.4, 0.01, 0.6);
+      const drainArea = new THREE.Mesh(drainAreaGeometry, MATERIALS.darkSteel);
+      drainArea.position.set(tableWidth * 0.15, 0.96, 0);
+      model.add(drainArea);
+
+      // Drain holes
+      {
+        const holeGeometry = new THREE.CircleGeometry(0.02, 8);
+        const step = 0.12;
+        const xStart = -tableWidth * 0.15;
+        const xEnd = tableWidth * 0.15 + 1e-6;
+        const zStart = -0.24;
+        const zEnd = 0.24 + 1e-6;
+
+        const xCount = Math.floor((xEnd - xStart) / step) + 1;
+        const zCount = Math.floor((zEnd - zStart) / step) + 1;
+        const count = xCount * zCount;
+        const holes = new THREE.InstancedMesh(holeGeometry, MATERIALS.darkSteel, count);
+
+        const tmp = new THREE.Object3D();
+        tmp.rotation.x = -Math.PI / 2;
+        let i = 0;
+        for (let xi = 0; xi < xCount; xi++) {
+          const x = xStart + xi * step;
+          for (let zi = 0; zi < zCount; zi++) {
+            const z = zStart + zi * step;
+            tmp.position.set(tableWidth * 0.15 + x, 0.965, z);
+            tmp.updateMatrix();
+            holes.setMatrixAt(i++, tmp.matrix);
+          }
+        }
+        holes.instanceMatrix.needsUpdate = true;
+        model.add(holes);
+      }
+
+      // ---- SINK ----
+      createSink(modelConfig.sinkPosition, tableWidth);
+
+      // ---- PEGBOARD ----
+      const pegboardGroup = new THREE.Group();
+      const pegboardGeometry = new THREE.BoxGeometry(tableWidth - 0.2, 0.8, 0.03);
+      const pegboard = new THREE.Mesh(pegboardGeometry, MATERIALS.brushedSteel);
+      pegboard.position.set(0, 1.4, -0.47);
+      pegboard.castShadow = true;
+      pegboardGroup.add(pegboard);
+
+      // Pegboard holes
+      {
+        const holeGeometry = new THREE.CircleGeometry(0.012, 8);
+        const stepX = 0.15;
+        const stepY = 0.1;
+        const xStart = -(tableWidth / 2) + 0.3;
+        const xEnd = (tableWidth / 2) - 0.3 + 1e-6;
+        const yStart = 1.1;
+        const yEnd = 1.65 + 1e-6;
+
+        const xCount = Math.floor((xEnd - xStart) / stepX) + 1;
+        const yCount = Math.floor((yEnd - yStart) / stepY) + 1;
+        const count = xCount * yCount;
+        const holes = new THREE.InstancedMesh(holeGeometry, MATERIALS.darkSteel, count);
+
+        const tmp = new THREE.Object3D();
+        let i = 0;
+        for (let xi = 0; xi < xCount; xi++) {
+          const x = xStart + xi * stepX;
+          for (let yi = 0; yi < yCount; yi++) {
+            const y = yStart + yi * stepY;
+            tmp.position.set(x, y, -0.455);
+            tmp.updateMatrix();
+            holes.setMatrixAt(i++, tmp.matrix);
+          }
+        }
+        holes.instanceMatrix.needsUpdate = true;
+        pegboardGroup.add(holes);
+      }
+      modelComponents.pegboard = pegboardGroup;
+      model.add(pegboardGroup);
+
+      // ---- VENTILATION HOOD ----
+      const hoodGroup = new THREE.Group();
+      const hoodGeometry = new THREE.BoxGeometry(tableWidth - 0.4, 0.15, 0.4);
+      const hood = new THREE.Mesh(hoodGeometry, MATERIALS.stainlessSteel);
+      hood.position.set(0, 1.87, -0.35);
+      hood.castShadow = true;
+      hoodGroup.add(hood);
+
+      const hoodLipGeometry = new THREE.BoxGeometry(tableWidth - 0.35, 0.08, 0.03);
+      const hoodLip = new THREE.Mesh(hoodLipGeometry, MATERIALS.brushedSteel);
+      hoodLip.position.set(0, 1.8, -0.13);
+      hoodGroup.add(hoodLip);
+      modelComponents.hood = hoodGroup;
+      model.add(hoodGroup);
+
+      // ---- CONTROL PANEL ----
+      const panelGeometry = new THREE.BoxGeometry(0.3, 0.2, 0.02);
+      const panel = new THREE.Mesh(panelGeometry, MATERIALS.plastic);
+      panel.position.set(tableWidth / 2 - 0.3, 1.2, -0.45);
+      model.add(panel);
+
+      const screenGeometry = new THREE.BoxGeometry(0.25, 0.15, 0.005);
+      const screen = new THREE.Mesh(screenGeometry, MATERIALS.mopecBlue);
+      screen.position.set(tableWidth / 2 - 0.3, 1.2, -0.435);
+      model.add(screen);
+
+      // ---- BASE ----
+      createBase(tableWidth);
+
+      // ---- LED STRIP (optional) ----
+      createLedStrip(tableWidth);
+
+      // ---- BRANDING ACCENT ----
+      const accentGeometry = new THREE.BoxGeometry(0.02, 0.6, 0.02);
+      const accent = new THREE.Mesh(accentGeometry, MATERIALS.mopecOrange);
+      accent.position.set(-tableWidth / 2 - 0.02, 1.4, -0.47);
+      model.add(accent);
+
+      scene.add(model);
+
+      // Store original materials for view mode switching
+      model.traverse((child) => {
+        if (child.isMesh) {
+          originalMaterials[child.uuid] = child.material;
+        }
+      });
+
+      // Hide loading
+      loadingIndicator.style.display = 'none';
+    }
+
+    function getSinkXForPosition(position, tableWidth) {
+      switch (position) {
+        case 'left':
+          return -tableWidth / 2 + 0.5;
+        case 'center':
+          return 0;
+        case 'right':
+          return tableWidth / 2 - 0.5;
+        default:
+          return -tableWidth / 2 + 0.5;
+      }
+    }
+
+    function getSinkDims() {
+      // Keep proportions stable across products (48/60/72/96) while reflecting larger basins on wider stations.
+      if (modelConfig.width >= 96) {
+        return { outerW: 0.62, outerH: 0.22, outerD: 0.40, innerW: 0.56, innerH: 0.20, innerD: 0.34 };
+      }
+      if (modelConfig.width <= 60) {
+        return { outerW: 0.50, outerH: 0.20, outerD: 0.32, innerW: 0.44, innerH: 0.18, innerD: 0.26 };
+      }
+      return { outerW: 0.55, outerH: 0.20, outerD: 0.35, innerW: 0.50, innerH: 0.18, innerD: 0.30 };
+    }
+
+    function createSecondSink(primaryPosition, tableWidth) {
+      if (modelComponents.secondSink) {
+        model.remove(modelComponents.secondSink);
+        disposeObject3D(modelComponents.secondSink);
+      }
+
+      if (!modelConfig.hasSecondSink || modelConfig.width < 96 || primaryPosition === 'none') {
+        modelComponents.secondSink = null;
+        return;
+      }
+
+      const secondPosition = primaryPosition === 'left'
+        ? 'right'
+        : primaryPosition === 'right'
+          ? 'left'
+          : 'right';
+
+      const sinkX = getSinkXForPosition(secondPosition, tableWidth);
+      const sinkGroup = new THREE.Group();
+
+      const { outerW, outerH, outerD, innerW, innerH, innerD } = getSinkDims();
+      const sinkOuterGeometry = new THREE.BoxGeometry(outerW, outerH, outerD);
+      const sinkOuter = new THREE.Mesh(sinkOuterGeometry, MATERIALS.stainlessSteel);
+      sinkOuter.position.set(sinkX, 0.85, 0);
+      sinkOuter.castShadow = true;
+      sinkGroup.add(sinkOuter);
+
+      const sinkInnerGeometry = new THREE.BoxGeometry(innerW, innerH, innerD);
+      const sinkInner = new THREE.Mesh(sinkInnerGeometry, MATERIALS.darkSteel);
+      sinkInner.position.set(sinkX, 0.85 + (outerH - innerH) / 2, 0);
+      sinkGroup.add(sinkInner);
+
+      createFaucet(sinkGroup, sinkX - 0.25, 0.95, 0.3);
+
+      modelComponents.secondSink = sinkGroup;
+      model.add(sinkGroup);
+    }
+
+    function createBase(tableWidth) {
+      if (modelComponents.base) {
+        model.remove(modelComponents.base);
+        disposeObject3D(modelComponents.base);
+      }
+
+      const baseGroup = modelConfig.baseStyle === 'legs'
+        ? createLegBase(tableWidth)
+        : createPedestalBase(tableWidth);
+
+      modelComponents.base = baseGroup;
+      model.add(baseGroup);
+    }
+
+    function createPedestalBase(tableWidth) {
+      const baseGroup = new THREE.Group();
+
+      const pedestalGeometry = new THREE.CylinderGeometry(0.25, 0.35, 0.15, 32);
+      const pedestal = new THREE.Mesh(pedestalGeometry, MATERIALS.stainlessSteel);
+      pedestal.position.y = 0.075;
+      pedestal.castShadow = true;
+      pedestal.receiveShadow = true;
+      baseGroup.add(pedestal);
+
+      const columnGeometry = new THREE.CylinderGeometry(0.12, 0.18, 0.75, 32);
+      const column = new THREE.Mesh(columnGeometry, MATERIALS.stainlessSteel);
+      column.position.y = 0.525;
+      column.castShadow = true;
+      baseGroup.add(column);
+
+      const frameGeometry = new THREE.BoxGeometry(tableWidth * 0.6, 0.08, 0.7);
+      const frame = new THREE.Mesh(frameGeometry, MATERIALS.brushedSteel);
+      frame.position.y = 0.91;
+      frame.castShadow = true;
+      baseGroup.add(frame);
+
+      return baseGroup;
+    }
+
+    function createLegBase(tableWidth) {
+      const baseGroup = new THREE.Group();
+
+      const legSize = 0.085;
+      const legHeight = 0.9;
+      const zDepth = 0.9;
+      const legGeometry = new THREE.BoxGeometry(legSize, legHeight, legSize);
+
+      const legPositions = [
+        { x: -tableWidth / 2 + legSize / 2, z: -zDepth / 2 + legSize / 2 },
+        { x: tableWidth / 2 - legSize / 2, z: -zDepth / 2 + legSize / 2 },
+        { x: -tableWidth / 2 + legSize / 2, z: zDepth / 2 - legSize / 2 },
+        { x: tableWidth / 2 - legSize / 2, z: zDepth / 2 - legSize / 2 }
+      ];
+
+      legPositions.forEach(({ x, z }) => {
+        const leg = new THREE.Mesh(legGeometry, MATERIALS.stainlessSteel);
+        leg.position.set(x, legHeight / 2, z);
+        leg.castShadow = true;
+        leg.receiveShadow = true;
+        baseGroup.add(leg);
+      });
+
+      // Top frame (under-table support)
+      const topFrameGeometry = new THREE.BoxGeometry(tableWidth * 0.7, 0.06, 0.75);
+      const topFrame = new THREE.Mesh(topFrameGeometry, MATERIALS.brushedSteel);
+      topFrame.position.y = 0.91;
+      topFrame.castShadow = true;
+      baseGroup.add(topFrame);
+
+      // Lower stretcher
+      const stretcherGeometry = new THREE.BoxGeometry(tableWidth * 0.7, 0.05, 0.05);
+      const frontStretcher = new THREE.Mesh(stretcherGeometry, MATERIALS.brushedSteel);
+      frontStretcher.position.set(0, 0.25, zDepth / 2 - 0.08);
+      baseGroup.add(frontStretcher);
+
+      const backStretcher = frontStretcher.clone();
+      backStretcher.position.z = -zDepth / 2 + 0.08;
+      baseGroup.add(backStretcher);
+
+      return baseGroup;
+    }
+
+    function createSink(position, tableWidth) {
+      // Remove existing sink if any
+      if (modelComponents.sink) {
+        model.remove(modelComponents.sink);
+        disposeObject3D(modelComponents.sink);
+        modelComponents.sink = null;
+      }
+      if (modelComponents.secondSink) {
+        model.remove(modelComponents.secondSink);
+        disposeObject3D(modelComponents.secondSink);
+        modelComponents.secondSink = null;
+      }
+
+      if (position === 'none') {
+        modelComponents.sink = null;
+        modelComponents.secondSink = null;
+        createDisposal(null);
+        return;
+      }
+
+      const sinkGroup = new THREE.Group();
+      const sinkX = getSinkXForPosition(position, tableWidth);
+
+      const { outerW, outerH, outerD, innerW, innerH, innerD } = getSinkDims();
+      const sinkOuterGeometry = new THREE.BoxGeometry(outerW, outerH, outerD);
+      const sinkOuter = new THREE.Mesh(sinkOuterGeometry, MATERIALS.stainlessSteel);
+      sinkOuter.position.set(sinkX, 0.85, 0);
+      sinkOuter.castShadow = true;
+      sinkGroup.add(sinkOuter);
+
+      const sinkInnerGeometry = new THREE.BoxGeometry(innerW, innerH, innerD);
+      const sinkInner = new THREE.Mesh(sinkInnerGeometry, MATERIALS.darkSteel);
+      sinkInner.position.set(sinkX, 0.85 + (outerH - innerH) / 2, 0);
+      sinkGroup.add(sinkInner);
+
+      // Faucet
+      createFaucet(sinkGroup, sinkX - 0.25, 0.95, 0.3);
+
+      modelComponents.sink = sinkGroup;
+      model.add(sinkGroup);
+
+      createDisposal(sinkX);
+      createSecondSink(position, tableWidth);
+    }
+
+    function createFaucet(group, x, y, z) {
+      const baseGeometry = new THREE.CylinderGeometry(0.025, 0.03, 0.1, 16);
+      const base = new THREE.Mesh(baseGeometry, MATERIALS.stainlessSteel);
+      base.position.set(x, y + 0.05, z);
+      group.add(base);
+
+      const neckGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.25, 16);
+      const neck = new THREE.Mesh(neckGeometry, MATERIALS.stainlessSteel);
+      neck.position.set(x, y + 0.225, z);
+      group.add(neck);
+
+      const curve = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(x, y + 0.35, z),
+        new THREE.Vector3(x + 0.1, y + 0.38, z),
+        new THREE.Vector3(x + 0.15, y + 0.3, z)
+      );
+      const tubeGeometry = new THREE.TubeGeometry(curve, 20, 0.012, 8, false);
+      const spout = new THREE.Mesh(tubeGeometry, MATERIALS.stainlessSteel);
+      group.add(spout);
+
+      const handleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.06, 16);
+      const handle = new THREE.Mesh(handleGeometry, MATERIALS.brushedSteel);
+      handle.rotation.x = Math.PI / 2;
+      handle.position.set(x + 0.05, y + 0.15, z);
+      group.add(handle);
+    }
+
+    function createDisposal(sinkX) {
+      if (modelComponents.disposal) {
+        model.remove(modelComponents.disposal);
+        disposeObject3D(modelComponents.disposal);
+      }
+
+      if (!modelConfig.hasDisposal || sinkX == null) {
+        modelComponents.disposal = null;
+        return;
+      }
+
+      const disposalGroup = new THREE.Group();
+      const disposalGeometry = new THREE.CylinderGeometry(0.1, 0.12, 0.25, 16);
+      const disposal = new THREE.Mesh(disposalGeometry, MATERIALS.darkSteel);
+      disposal.position.set(sinkX, 0.62, 0);
+      disposalGroup.add(disposal);
+      modelComponents.disposal = disposalGroup;
+      model.add(disposalGroup);
+    }
+
+    function createLedStrip(tableWidth) {
+      if (modelComponents.ledStrip) {
+        model.remove(modelComponents.ledStrip);
+        disposeObject3D(modelComponents.ledStrip);
+      }
+
+      if (!modelConfig.hasLedStrip) {
+        modelComponents.ledStrip = null;
+        return;
+      }
+
+      const ledGroup = new THREE.Group();
+      const lightStripGeometry = new THREE.BoxGeometry(tableWidth - 0.6, 0.02, 0.03);
+      const lightStrip = new THREE.Mesh(lightStripGeometry, MATERIALS.emissiveWhite);
+      lightStrip.position.set(0, 1.78, -0.2);
+      ledGroup.add(lightStrip);
+      modelComponents.ledStrip = ledGroup;
+      model.add(ledGroup);
+    }
+
+    function createMonitorArm() {
+      if (modelComponents.monitorArm) {
+        model.remove(modelComponents.monitorArm);
+        disposeObject3D(modelComponents.monitorArm);
+      }
+
+      if (!modelConfig.hasMonitorArm) {
+        modelComponents.monitorArm = null;
+        return;
+      }
+
+      const armGroup = new THREE.Group();
+
+      // Arm base
+      const baseGeometry = new THREE.CylinderGeometry(0.04, 0.05, 0.08, 16);
+      const base = new THREE.Mesh(baseGeometry, MATERIALS.darkSteel);
+      base.position.set(0, 1.95, -0.35);
+      armGroup.add(base);
+
+      // Arm pole
+      const poleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 16);
+      const pole = new THREE.Mesh(poleGeometry, MATERIALS.darkSteel);
+      pole.position.set(0, 2.15, -0.35);
+      armGroup.add(pole);
+
+      // Arm extension
+      const extensionGeometry = new THREE.BoxGeometry(0.3, 0.04, 0.04);
+      const extension = new THREE.Mesh(extensionGeometry, MATERIALS.darkSteel);
+      extension.position.set(0.15, 2.3, -0.35);
+      armGroup.add(extension);
+
+      // Monitor placeholder
+      const monitorGeometry = new THREE.BoxGeometry(0.5, 0.3, 0.02);
+      const monitor = new THREE.Mesh(monitorGeometry, MATERIALS.plastic);
+      monitor.position.set(0.3, 2.3, -0.3);
+      armGroup.add(monitor);
+
+      const screenGeometry = new THREE.BoxGeometry(0.45, 0.25, 0.005);
+      const screen = new THREE.Mesh(screenGeometry, MATERIALS.mopecBlue);
+      screen.position.set(0.3, 2.3, -0.28);
+      armGroup.add(screen);
+
+      modelComponents.monitorArm = armGroup;
+      model.add(armGroup);
+    }
+
+    function createMagnetBar() {
+      if (modelComponents.magnetBar) {
+        model.remove(modelComponents.magnetBar);
+        disposeObject3D(modelComponents.magnetBar);
+      }
+
+      if (!modelConfig.hasMagnetBar) {
+        modelComponents.magnetBar = null;
+        return;
+      }
+
+      const barGroup = new THREE.Group();
+      const widthScale = modelConfig.width / 72;
+      const barWidth = 1.5 * widthScale;
+
+      const barGeometry = new THREE.BoxGeometry(barWidth, 0.04, 0.03);
+      const bar = new THREE.Mesh(barGeometry, MATERIALS.darkSteel);
+      bar.position.set(0, 1.0, -0.43);
+      barGroup.add(bar);
+
+      modelComponents.magnetBar = barGroup;
+      model.add(barGroup);
+    }
+
+    function createDrawers() {
+      if (modelComponents.drawers) {
+        model.remove(modelComponents.drawers);
+        disposeObject3D(modelComponents.drawers);
+      }
+
+      if (!modelConfig.hasDrawers) {
+        modelComponents.drawers = null;
+        return;
+      }
+
+      const drawersGroup = new THREE.Group();
+      const widthScale = modelConfig.width / 72;
+
+      // Left drawer
+      const drawerGeometry = new THREE.BoxGeometry(0.4, 0.2, 0.5);
+      const leftDrawer = new THREE.Mesh(drawerGeometry, MATERIALS.stainlessSteel);
+      leftDrawer.position.set(-widthScale * 0.8, 0.5, 0.1);
+      leftDrawer.castShadow = true;
+      drawersGroup.add(leftDrawer);
+
+      // Drawer handle
+      const handleGeometry = new THREE.BoxGeometry(0.15, 0.02, 0.02);
+      const leftHandle = new THREE.Mesh(handleGeometry, MATERIALS.brushedSteel);
+      leftHandle.position.set(-widthScale * 0.8, 0.55, 0.36);
+      drawersGroup.add(leftHandle);
+
+      // Right drawer
+      const rightDrawer = leftDrawer.clone();
+      rightDrawer.position.set(widthScale * 0.8, 0.5, 0.1);
+      drawersGroup.add(rightDrawer);
+
+      const rightHandle = leftHandle.clone();
+      rightHandle.position.set(widthScale * 0.8, 0.55, 0.36);
+      drawersGroup.add(rightHandle);
+
+      modelComponents.drawers = drawersGroup;
+      model.add(drawersGroup);
+    }
+
+    function createPathCam() {
+      if (modelComponents.pathCam) {
+        model.remove(modelComponents.pathCam);
+        disposeObject3D(modelComponents.pathCam);
+      }
+
+      if (!modelConfig.hasPathCam) {
+        modelComponents.pathCam = null;
+        return;
+      }
+
+      const camGroup = new THREE.Group();
+
+      // Camera housing
+      const housingGeometry = new THREE.BoxGeometry(0.15, 0.1, 0.2);
+      const housing = new THREE.Mesh(housingGeometry, MATERIALS.plastic);
+      housing.position.set(0, 2.1, -0.2);
+      camGroup.add(housing);
+
+      // Lens
+      const lensGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.05, 16);
+      const lens = new THREE.Mesh(lensGeometry, MATERIALS.glass);
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(0, 2.08, -0.08);
+      camGroup.add(lens);
+
+      // LED ring
+      const ringGeometry = new THREE.TorusGeometry(0.05, 0.008, 8, 24);
+      const ring = new THREE.Mesh(ringGeometry, MATERIALS.emissiveWhite);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.set(0, 2.08, -0.07);
+      camGroup.add(ring);
+
+      modelComponents.pathCam = camGroup;
+      model.add(camGroup);
+    }
+
+    function createPegboardWing() {
+      if (modelComponents.pegboardWing) {
+        model.remove(modelComponents.pegboardWing);
+        disposeObject3D(modelComponents.pegboardWing);
+      }
+
+      if (!modelConfig.hasPegboardWing) {
+        modelComponents.pegboardWing = null;
+        return;
+      }
+
+      const widthScale = modelConfig.width / 72;
+      const tableWidth = 3.0 * widthScale;
+
+      const wingGroup = new THREE.Group();
+      const wingW = 0.55;
+      const wingH = 0.8;
+      const wingD = 0.03;
+
+      const wingGeometry = new THREE.BoxGeometry(wingW, wingH, wingD);
+      const wing = new THREE.Mesh(wingGeometry, MATERIALS.brushedSteel);
+      wing.position.set(-(tableWidth / 2) - (wingW / 2) - 0.05, 1.4, -0.47);
+      wing.castShadow = true;
+      wingGroup.add(wing);
+
+      // Hole pattern (instanced)
+      const holeGeometry = new THREE.CircleGeometry(0.012, 8);
+      const stepX = 0.14;
+      const stepY = 0.1;
+      const xStart = -(wingW / 2) + 0.09;
+      const xEnd = (wingW / 2) - 0.09 + 1e-6;
+      const yStart = -wingH / 2 + 0.1;
+      const yEnd = wingH / 2 - 0.1 + 1e-6;
+
+      const xCount = Math.floor((xEnd - xStart) / stepX) + 1;
+      const yCount = Math.floor((yEnd - yStart) / stepY) + 1;
+      const count = xCount * yCount;
+
+      const holes = new THREE.InstancedMesh(holeGeometry, MATERIALS.darkSteel, count);
+      const tmp = new THREE.Object3D();
+      let i = 0;
+      for (let xi = 0; xi < xCount; xi++) {
+        const x = xStart + xi * stepX;
+        for (let yi = 0; yi < yCount; yi++) {
+          const y = yStart + yi * stepY;
+          tmp.position.set(wing.position.x + x, wing.position.y + y, -0.455);
+          tmp.updateMatrix();
+          holes.setMatrixAt(i++, tmp.matrix);
+        }
+      }
+      holes.instanceMatrix.needsUpdate = true;
+      wingGroup.add(holes);
+
+      modelComponents.pegboardWing = wingGroup;
+      model.add(wingGroup);
+    }
+
+    function createFormalinDispenser() {
+      if (modelComponents.formalinDispenser) {
+        model.remove(modelComponents.formalinDispenser);
+        disposeObject3D(modelComponents.formalinDispenser);
+      }
+
+      const position = modelConfig.sinkPosition;
+      if (!modelConfig.hasFormalinDispenser || position === 'none') {
+        modelComponents.formalinDispenser = null;
+        return;
+      }
+
+      const widthScale = modelConfig.width / 72;
+      const tableWidth = 3.0 * widthScale;
+      const sinkX = getSinkXForPosition(position, tableWidth);
+
+      const dispGroup = new THREE.Group();
+
+      // Bottle
+      const bodyGeometry = new THREE.CylinderGeometry(0.06, 0.06, 0.18, 24);
+      const body = new THREE.Mesh(bodyGeometry, MATERIALS.rubber);
+      body.position.set(sinkX + 0.22, 1.05, 0.22);
+      dispGroup.add(body);
+
+      // Pump
+      const pumpGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.08, 16);
+      const pump = new THREE.Mesh(pumpGeometry, MATERIALS.brushedSteel);
+      pump.position.set(sinkX + 0.22, 1.17, 0.22);
+      dispGroup.add(pump);
+
+      const spoutGeometry = new THREE.BoxGeometry(0.08, 0.015, 0.015);
+      const spout = new THREE.Mesh(spoutGeometry, MATERIALS.brushedSteel);
+      spout.position.set(sinkX + 0.27, 1.19, 0.22);
+      dispGroup.add(spout);
+
+      modelComponents.formalinDispenser = dispGroup;
+      model.add(dispGroup);
+    }
+
+    function createRim(group, width, depth, height, yPos) {
+      const rimThickness = 0.025;
+
+      const frontRimGeometry = new THREE.BoxGeometry(width, height, rimThickness);
+      const frontRim = new THREE.Mesh(frontRimGeometry, MATERIALS.stainlessSteel);
+      frontRim.position.set(0, yPos + height / 2, depth / 2);
+      group.add(frontRim);
+
+      const backRim = frontRim.clone();
+      backRim.position.z = -depth / 2;
+      group.add(backRim);
+
+      const sideRimGeometry = new THREE.BoxGeometry(rimThickness, height, depth);
+      const leftRim = new THREE.Mesh(sideRimGeometry, MATERIALS.stainlessSteel);
+      leftRim.position.set(-width / 2, yPos + height / 2, 0);
+      group.add(leftRim);
+
+      const rightRim = leftRim.clone();
+      rightRim.position.x = width / 2;
+      group.add(rightRim);
+    }
+
+    function updateModel(config) {
+      modelConfig = { ...modelConfig, ...config };
+
+      // Recreate model with new config
+      if (model) {
+        scene.remove(model);
+        disposeObject3D(model);
+        model = null;
+        modelComponents = {
+          tableTop: null,
+          sink: null,
+          secondSink: null,
+          disposal: null,
+          pegboard: null,
+          pegboardWing: null,
+          hood: null,
+          pathCam: null,
+          monitorArm: null,
+          magnetBar: null,
+          drawers: null,
+          ledStrip: null,
+          formalinDispenser: null,
+          base: null
+        };
+      }
+      createMaestroModel();
+
+      // Add optional components
+      createMonitorArm();
+      createMagnetBar();
+      createDrawers();
+      createPathCam();
+      createPegboardWing();
+      createFormalinDispenser();
+
+      // Reapply view mode
+      if (viewMode === 'blueprint') {
+        applyBlueprintMode();
+      }
+    }
+
+    function applyBlueprintMode() {
+      model.traverse((child) => {
+        if (child.isMesh) {
+          child.material = blueprintMaterial;
+        }
+      });
+      renderer.setClearColor(0xffffff, 1);
+      document.getElementById('dimension-annotations').classList.remove('hidden');
+    }
+
+    function applyRenderMode() {
+      model.traverse((child) => {
+        if (child.isMesh && originalMaterials[child.uuid]) {
+          child.material = originalMaterials[child.uuid];
+        }
+      });
+      renderer.setClearColor(0x000000, 0);
+      document.getElementById('dimension-annotations').classList.add('hidden');
+    }
+
+    function onWindowResize() {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (autoRotate && model) model.rotation.y += 0.005;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // ============================================
+    // Global Functions
+    // ============================================
+    window.setView = function (view, btn) {
+      const views = {
+        front: { x: 0, y: 2, z: 6 },
+        side: { x: 6, y: 2, z: 0 },
+        top: { x: 0, y: 8, z: 0.1 },
+        iso: { x: 5, y: 3, z: 5 }
+      };
+
+      const targetPosition = views[view];
+      if (!targetPosition) return;
+
+      const duration = 400;
+      const startPos = { ...camera.position };
+      const startTime = Date.now();
+
+      document.querySelectorAll('.join [data-view]').forEach(b => b.classList.remove('active'));
+      btn?.classList.add('active');
+
+      function animateCamera() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+
+        camera.position.x = startPos.x + (targetPosition.x - startPos.x) * eased;
+        camera.position.y = startPos.y + (targetPosition.y - startPos.y) * eased;
+        camera.position.z = startPos.z + (targetPosition.z - startPos.z) * eased;
+        camera.lookAt(controls.target);
+        controls.update();
+
+        if (progress < 1) requestAnimationFrame(animateCamera);
+      }
+      animateCamera();
+    };
+
+    window.setViewMode = function (mode, btn) {
+      viewMode = mode;
+      document.getElementById('view-render').classList.toggle('active', mode === 'render');
+      document.getElementById('view-blueprint').classList.toggle('active', mode === 'blueprint');
+
+      if (mode === 'blueprint') {
+        applyBlueprintMode();
+      } else {
+        applyRenderMode();
+      }
+    };
+
+    window.zoomIn = () => {
+      const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
+      camera.position.copy(controls.target).add(offset.multiplyScalar(0.85));
+      controls.update();
+    };
+    window.zoomOut = () => {
+      const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
+      camera.position.copy(controls.target).add(offset.multiplyScalar(1.15));
+      controls.update();
+    };
+
+    window.toggleAutoRotate = function () {
+      autoRotate = !autoRotate;
+      document.getElementById('rotate-btn').classList.toggle('active', autoRotate);
+    };
+
+    window.update3DModel = updateModel;
+
+    // Initialize
+    init();
+  </script>
+
+  <!-- Application Logic -->
+  <script src="js/app.js"></script>
+
+  <!-- PDF Generation (moved to js/pdf.js) -->
+  <script src="js/pdf.js">
+    // Helper function to load image as base64
+    function loadImageAsBase64(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = function () {
+          reject(new Error('Failed to load image'));
+        };
+        img.src = src;
+      });
+    }
+
+    window.downloadPDF = async function () {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const { PRODUCTS, FEATURES, ACCESSORIES, formatPrice, calculateTotal, getConfigSummary } = window.MopecConfig;
+      const state = window.AppState;
+      const product = PRODUCTS[state.product];
+
+      if (!product) return;
+
+      // Colors
+      const mopecBlue = [64, 126, 201];
+      const mopecOrange = [252, 76, 2];
+      const mopecGray = [75, 79, 84];
+      const mopecGreen = [101, 141, 27];
+
+      // Header
+      doc.setFillColor(...mopecBlue);
+      doc.rect(0, 0, 220, 35, 'F');
+
+      // Try to load and add logo
+      try {
+        const logoDataUrl = await loadImageAsBase64('logo.png');
+        // Logo dimensions scaled to fit header
+        const logoWidth = 45;
+        const logoHeight = 22;
+        doc.addImage(logoDataUrl, 'PNG', 12, 7, logoWidth, logoHeight);
+      } catch (e) {
+        // Fallback to text if logo fails to load
+        console.warn('Logo failed to load, using text fallback:', e);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('MOPEC', 15, 20);
+      }
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      doc.text('Configuration Quote', 150, 20);
+      doc.text(new Date().toLocaleDateString(), 150, 28);
+
+      // Product Title
+      doc.setTextColor(...mopecGray);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text(product.name, 15, 50);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 100, 100);
+      doc.text(product.subtitle || 'Grossing Station', 15, 58);
+
+      // Configuration Details Table
+      const configData = [
+        ['Base Unit', product.name, formatPrice(product.basePrice)]
+      ];
+
+      // Add features
+      state.features.forEach(featureId => {
+        const feature = FEATURES[featureId];
+        if (feature && !feature.included) {
+          configData.push(['Feature', feature.name, formatPrice(feature.price)]);
+        }
+      });
+
+      // Add accessories
+      state.accessories.forEach(accessoryId => {
+        const accessory = ACCESSORIES[accessoryId];
+        if (accessory) {
+          configData.push(['Accessory', accessory.name, formatPrice(accessory.price)]);
+        }
+      });
+
+      // Add sink position
+      if (state.sinkPosition) {
+        configData.push(['Layout', `Sink Position: ${state.sinkPosition.charAt(0).toUpperCase() + state.sinkPosition.slice(1)}`, '-']);
+      }
+
+      doc.autoTable({
+        startY: 70,
+        head: [['Type', 'Description', 'Price']],
+        body: configData,
+        theme: 'striped',
+        headStyles: {
+          fillColor: mopecBlue,
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 247, 250]
+        },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 110 },
+          2: { cellWidth: 30, halign: 'right' }
+        }
+      });
+
+      // Total
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFillColor(...mopecGreen);
+      doc.rect(120, finalY, 75, 15, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ESTIMATED TOTAL:', 125, finalY + 10);
+      doc.text(formatPrice(calculateTotal(state)), 185, finalY + 10, { align: 'right' });
+
+      // Specifications
+      const specsY = finalY + 35;
+      doc.setTextColor(...mopecBlue);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Technical Specifications', 15, specsY);
+
+      const specsData = [
+        ['Material', '304 Stainless Steel'],
+        ['Finish', 'No. 4 Satin'],
+        ['Dimensions', `${product.dimensions.length} x ${product.dimensions.width}`],
+        ['Height Range', product.dimensions.heightRange],
+        ['Capacity', product.capacity],
+        ['Power', '115V/60Hz/1Ph'],
+        ['Circuits', '2 x 20A Dedicated'],
+        ['Exhaust', '275-400 CFM']
+      ];
+
+      doc.autoTable({
+        startY: specsY + 5,
+        body: specsData,
+        theme: 'plain',
+        columnStyles: {
+          0: { cellWidth: 50, fontStyle: 'bold', textColor: mopecGray },
+          1: { cellWidth: 100 }
+        },
+        styles: {
+          fontSize: 9,
+          cellPadding: 2
+        }
+      });
+
+      // Footer
+      const pageHeight = doc.internal.pageSize.height;
+      doc.setFillColor(...mopecGray);
+      doc.rect(0, pageHeight - 25, 220, 25, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Mopec | 21750 Coolidge Hwy, Oak Park, MI 48237 | (800) 362-8491 | www.mopec.com', 105, pageHeight - 15, { align: 'center' });
+      doc.text('Pricing subject to change. Contact us for a formal quote.', 105, pageHeight - 8, { align: 'center' });
+
+      // Save
+      const filename = `Mopec_${product.name.replace(/[^a-z0-9]/gi, '_')}_Quote_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
+
+      window.showToast('PDF downloaded successfully!', 'success');
+    };
+  </script>
+</body>
+
+</html>
